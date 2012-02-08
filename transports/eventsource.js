@@ -3,6 +3,7 @@ var Transport = require('./transport');
 function EventSource () {
   Transport.apply(this, arguments);
 
+  // set defaults for this transport
   this.name = 'EventSource';
   this.specification = 0;
 }
