@@ -1,0 +1,16 @@
+{
+    "name": "red"
+  , "version": "0.0.0"
+  , "description": "RED is a scalable real time application framework with cross browser fallbacks"
+  , "author": "arnout@observe.it"
+  , "dependencies": {
+        "redis": "0.7.1"
+      , "eventreactor": "0.0.4"
+    }
+  , "devDependencies": {
+        "mocha": "*"
+    }
+  , "scripts": {
+        "test": "make test"
+    }
+}
