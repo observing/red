@@ -1,4 +1,4 @@
-var EventEmitter = require('events').EventEmitter
+var EventEmitter = require('events').EventEmitter;
 
 function Transport (engine, response) {
   this.engine = engine;
@@ -23,7 +23,7 @@ Transport.prototype.__proto__ = EventEmitter.prototype;
 
 Transport.prototype.write = function write () {
   this.count++;
-  this.engine.publish()
+  this.engine.publish();
 };
 
 Transport.prototype.initialize = function initialize () {
