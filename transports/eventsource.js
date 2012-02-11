@@ -8,7 +8,7 @@ function EventSource () {
   this.specification = 0;
 }
 
-EventSource.__proto__ = Transport.prototype;
+EventSource.prototype.__proto__ = Transport.prototype;
 
 EventSource.prototype.initialize = function initialize (request) {
   // is it a HTML5 specification based EventSource or a older one
@@ -30,3 +30,5 @@ EventSource.prototype.initialize = function initialize (request) {
   this.response.writeHead(200, headers);
   this.response.write('\r\n');
 };
+
+module.exports = EventSource;
