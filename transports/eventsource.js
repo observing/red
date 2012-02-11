@@ -11,6 +11,7 @@ function EventSource () {
 EventSource.__proto__ = Transport.prototype;
 
 EventSource.prototype.initialize = function initialize (request) {
+  // is it a HTML5 specification based EventSource or a older one
   this.specification = ~request.url.indexOf('spec=5') ? 5 : 0;
 
   var headers = {
@@ -28,8 +29,4 @@ EventSource.prototype.initialize = function initialize (request) {
 
   this.response.writeHead(200, headers);
   this.response.write('\r\n');
-};
-
-EventSource.prototype.write = function write () {
-
 };

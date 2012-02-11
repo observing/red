@@ -1,11 +1,10 @@
-var EventEmitter = require('events').EventEmitter;
+var EventEmitter = require('events').EventEmitter
+  , EventReactor = require('eventreactor')
+  , _ = require('underscore')._;
 
-function Transport (engine, response) {
-  this.engine = engine;
-  this.response = res;
-  this.socket = this.response.socket;
-
+function Transport (engine, response, options) {
   // defaults
+  this.id = id;
   this.count = 0;
   this.name = 'Transport';
   this.specification = 0;
@@ -13,6 +12,13 @@ function Transport (engine, response) {
   // does this transport needs to receive custom heartbeats
   this.heartbeats = true;
   this.heartbeatInterval = 20;
+  this.inactivity = 20;
+
+  _.extend(this, options || {});
+
+  this.engine = engine;
+  this.response = res;
+  this.socket = this.response.socket;
 
   // don't buffer anything
   this.socket.setTimeout(0);
@@ -21,17 +27,55 @@ function Transport (engine, response) {
 
 Transport.prototype.__proto__ = EventEmitter.prototype;
 
-Transport.prototype.write = function write () {
+/**
+ * Send a message, which is send to the engine under the hood because we have no
+ * idea if this user was still online
+ *
+ * @param {String} message
+ * @api public
+ */
+
+Transport.prototype.send = function send (message) {
   this.count++;
   this.engine.publish();
 };
 
-Transport.prototype.initialize = function initialize () {
+/**
+ * Write to the transport.
+ *
+ * @param {Buffer} buffer
+ * @api private
+ */
+
+Transport.prototype.write = function write (buffer) {
+  this.response.write(buffer);
+};
+
+/**
+ * Initialize the transport.
+ *
+ * @param {HTTP.ServerRequest} req
+ * @api public
+ */
+
+Transport.prototype.initialize = function initialize (req) {
 
 };
 
-Transport.prototype.end = function end () {
+/**
+ * Check if all messages have been flushed and destroys the transport once this
+ * done.
+ *
+ * @api public
+ */
 
+Transport.prototype.end = function end () {
+  if (this.socket._pendingWriteReqs === 0) return this.destroy();
+
+  var self = this;
+  this.socket.either('drain', 'end', 'close', function either () {
+    self.destroy();
+  });
 };
 
 /**
@@ -43,4 +87,6 @@ Transport.prototype.end = function end () {
 Transport.prototype.destroy = function destory () {
   this.removeAllListeners();
   this.removeReference();
+
+  this.engine.expire(this.id, this.inactivity);
 };
