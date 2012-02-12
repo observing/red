@@ -6,7 +6,15 @@ describe('engine.js', function () {
   });
 
   it('should initialize without any issues', function () {
-    var E = new Engine();
+    var engine = new Engine();
+  });
+
+  it('should be an instance of EventEmitter', function () {
+    var engine = new Engine();
+
+    if (!(engine instanceof process.EventEmitter)) {
+      should.fail('should be an EventEmitter');
+    }
   });
 
   it('is configurable using an option object', function () {
@@ -191,6 +199,41 @@ describe('engine.js', function () {
       pub.on('connect', connect);
     });
 
+    it('only receives messages from the subscribed channel', function (next) {
+      var engine = new Engine()
+        , subscribe = engine.async(5, function () {
+            engine.publish('1', '1');
+            engine.publish('2', '2');
+            engine.publish('3', '3');
+            engine.publish('4', '4');
+            engine.publish('5', '5');
+          });
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.subscribe('5', function (msg) {
+          msg.should.equal('5');
+
+          setTimeout(function () {
+            next();
+            engine.close();
+          }, 10);
+        });
+
+        engine.subscribe('4', function () {});
+        engine.subscribe('3', function () {});
+        engine.subscribe('2', function () {});
+        engine.subscribe('1', function () {});
+
+        engine.on('subscribe:1', subscribe);
+        engine.on('subscribe:2', subscribe);
+        engine.on('subscribe:3', subscribe);
+        engine.on('subscribe:4', subscribe);
+        engine.on('subscribe:5', subscribe);
+      });
+    });
+
     it('does not receive pub/sub from different namespaces', function (next) {
       var sub = new Engine({ namespace: 'sub' })
         , sub2 = new Engine({ namespace: 'sub2' })
@@ -224,6 +267,91 @@ describe('engine.js', function () {
 
       sub.on('connect', connect);
       sub2.on('connect', connect);
+    });
+
+    it('should unsubscribe from events', function (next) {
+      var engine = new Engine();
+
+      function subscribe (msg) {
+        msg.should.equal('sub');
+
+        engine.unsubscribe('unsub', subscribe);
+
+        engine.once('unsubscribe:unsub', function () {
+          engine.publish('unsub', 'wub');
+          engine.publish('unsub', 'wub');
+
+          next();
+          engine.close();
+        });
+      }
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.subscribe('unsub', subscribe);
+        engine.once('subscribe:unsub', function () {
+          engine.publish('unsub', 'sub');
+        });
+      });
+    });
+  });
+
+  describe('#handshake', function () {
+    var key = Date.now();
+
+    it('should set a handshake', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.handshake(id, 'test', function (err) {
+          engine.close();
+          next(err);
+        });
+      });
+    });
+
+    it('should get a handshake', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.handshake(id, 'testing', function (err) {
+          if (err) return next(err);
+
+          engine.handshake(id, function (err, data) {
+            data.should.equal('testing');
+
+            engine.close();
+            next(err);
+          });
+        });
+      });
+    });
+
+    it('should be able to set handshake without callback', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.handshake(id, 'test');
+
+        setTimeout(function () {
+          engine.handshake(id, function (err, data) {
+            data.should.equal('test');
+
+            engine.close();
+            next(err);
+          });
+        }, 100);
+      });
     });
   });
 });
