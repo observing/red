@@ -115,18 +115,115 @@ describe('engine.js', function () {
   });
 
   describe('#pub/sub', function () {
-    it('should send a simple pub/sub message', function (next) {
+    it('should emit a `subscribe:` event', function (next) {
       var engine = new Engine();
 
       engine.connect();
+
       engine.on('connect', function () {
-        engine.subscribe('channel', function () {
+        engine.subscribe('channel', function () {});
+
+        engine.on('subscribe:channel', function () {
+          next();
+          engine.close();
+        });
+      });
+    });
+
+    it('should send subscribtion count in `subscribe:` event', function (next) {
+      var engine = new Engine();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.subscribe('channel', function () {});
+
+        engine.on('subscribe:channel', function (count) {
+          count.should.be.a('number');
+          count.should.be.above(0);
+
+          next();
+          engine.close();
+        });
+      });
+    });
+
+    it('receives pub/sub messages it sends it self', function (next) {
+      var engine = new Engine();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.subscribe('mine', function (msg) {
+          msg.should.equal('pewpew');
+
           next();
           engine.close();
         });
 
-        engine.publish('chanel', 'pew');
+        engine.on('subscribe:mine', function () {
+          engine.publish('mine', 'pewpew');
+        });
       });
+    });
+
+    it('receives pub/sub messages from others', function (next) {
+      var sub = new Engine()
+        , pub = new Engine()
+        , connect = sub.async(2, function () {
+            sub.subscribe('multi', function (msg) {
+              msg.should.equal('hi from pub');
+
+              next();
+              sub.close();
+              pub.close();
+            });
+
+            sub.on('subscribe:multi', function () {
+              pub.publish('multi', 'hi from pub');
+            });
+          });
+
+      sub.connect();
+      pub.connect();
+
+      sub.on('connect', connect);
+      pub.on('connect', connect);
+    });
+
+    it('does not receive pub/sub from different namespaces', function (next) {
+      var sub = new Engine({ namespace: 'sub' })
+        , sub2 = new Engine({ namespace: 'sub2' })
+        , message = sub.async(2, function () {
+            next();
+            sub.close();
+            sub2.close();
+          })
+        , connect = sub.async(2, function () {
+            sub.subscribe('common', function (msg) {
+              msg.should.equal('hi from sub');
+              message();
+            });
+
+            sub.on('subscribe:common', function () {
+              sub.publish('common', 'hi from sub');
+            });
+
+            sub2.subscribe('common', function (msg) {
+              msg.should.equal('hi from sub2');
+              message();
+            });
+
+            sub2.on('subscribe:common', function () {
+              sub2.publish('common', 'hi from sub2');
+            });
+          });
+
+      sub.connect();
+      sub2.connect();
+
+      sub.on('connect', connect);
+      sub2.on('connect', connect);
     });
   });
 });
