@@ -354,4 +354,62 @@ describe('engine.js', function () {
       });
     });
   });
+
+  describe('#authenticated', function () {
+    var key = Date.now();
+
+    it('should set a authentication', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.authenticated(id, true, function (err) {
+          engine.close();
+          next(err);
+        });
+      });
+    });
+
+    it('should get a authentication', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.authenticated(id, true, function (err) {
+          if (err) return next(err);
+
+          engine.authenticated(id, function (err, data) {
+            data.should.be.a('boolean');
+
+            engine.close();
+            next(err);
+          });
+        });
+      });
+    });
+
+    it('should be able to set authentication without callback', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.authenticated(id, false);
+
+        setTimeout(function () {
+          engine.authenticated(id, function (err, data) {
+            data.should.be.a('boolean');
+
+            engine.close();
+            next(err);
+          });
+        }, 100);
+      });
+    });
+  });
 });
