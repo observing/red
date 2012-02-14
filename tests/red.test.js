@@ -94,7 +94,7 @@ describe('RED.js', function () {
         }
       });
 
-      /*it('HTTPS server works the same as the same server', function (next) {
+      it('HTTPS server works the same as the same server', function (next) {
         var port = TESTPORT
           , server = RED.Server.HTTP({
                 key: require('fs').readFileSync(__dirname + '/ssl/red-key.pem')
@@ -104,7 +104,7 @@ describe('RED.js', function () {
         server.listen(port, function (err) {
           if (err) return next(err);
 
-          request.get('http://localhost:' + port, function (err, res, body) {
+          request.get('https://localhost:' + port, function (err, res, body) {
             console.error(err);
 
             res.statusCode.should.equal(404);
@@ -116,7 +116,6 @@ describe('RED.js', function () {
           });
         });
       });
-      */
     });
   });
 });
