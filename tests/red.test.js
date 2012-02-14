@@ -13,6 +13,10 @@ describe('RED.js', function () {
     RED.Server.should.be.a('function');
   });
 
+  it('exposes the createServer function', function () {
+    RED.createServer.should.be.a('function');
+  });
+
   describe('.Server', function () {
     describe('#http', function () {
       it('creates a new HTTP server instance', function () {
@@ -115,6 +119,20 @@ describe('RED.js', function () {
             next(err);
           });
         });
+      });
+    });
+
+    describe('#createServer', function () {
+      it('is the same function as RED#createServer', function () {
+        RED.Server.createServer.should.equal(RED.createServer);
+      });
+
+      it('returns a Server instance', function () {
+        var server = RED.createServer();
+
+        if (!(server instanceof RED.Server)) {
+          should.fail('Not an RED.Server instance');
+        }
       });
     });
   });
