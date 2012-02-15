@@ -4,7 +4,9 @@ var EventEmitter = require('events').EventEmitter
 
 function Transport (engine, response, options) {
   // defaults
-  this.id = id;
+  this.sessionid = 0;
+  this.connectionid = 0;
+
   this.count = 0;
   this.name = 'Transport';
   this.specification = 0;
@@ -37,7 +39,7 @@ Transport.prototype.__proto__ = EventEmitter.prototype;
 
 Transport.prototype.send = function send (message) {
   this.count++;
-  this.engine.publish();
+  this.engine.publish(message);
 };
 
 /**
@@ -60,6 +62,24 @@ Transport.prototype.write = function write (buffer) {
 
 Transport.prototype.initialize = function initialize (req) {
 
+  this.backlog();
+};
+
+/**
+ * Process the message backlog.
+ *
+ * @api private
+ */
+
+Transport.prototype.backlog = function backlog () {
+  var self = this;
+
+  this.engine.backlog(this.sessionid, function history (err, messages) {
+    if (err) return;
+    if (!messages || !messages.length) return;
+
+    self.write(messages);
+  });
 };
 
 /**
