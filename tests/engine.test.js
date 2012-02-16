@@ -423,7 +423,7 @@ describe('engine.js', function () {
     });
   });
 
-  describe('#push', function () {
+  describe('#push and #pull\'ing', function () {
     it('should be able to push data in to a backlog', function (next) {
       var engine = new Engine()
         , id = Date.now();
@@ -451,6 +451,91 @@ describe('engine.js', function () {
         });
       });
     });
+
+    it('should pull the stored messages', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.push(id, 'pewpew', function (err) {
+          if (err) return next(err) + engine.close();
+
+          engine.pull(id, function (err, data) {
+            if (err) return next(err) + engine.close();
+
+            data.should.have.length(1);
+            data[0].should.equal('pewpew');
+
+            engine.close();
+            next();
+          });
+        });
+      });
+    });
+
+    it('should pull a maximum of 100 messages at once', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        var data = []
+          , amount = 150;
+
+        while (amount--) data.push('key - ' + amount);
+
+        engine.push(id, data, function (err) {
+          if (err) return next(err) + engine.close();
+
+          engine.pull(id, function (err, data) {
+            if (err) return next(err) + engine.close();
+
+            data.should.have.length(100);
+
+            engine.close();
+            next();
+          });
+        });
+      });
+    });
+
+    it('should remove the pushed messages with #pull', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        var data = []
+          , amount = 150
+          , last;
+
+        while (amount--) data.push('keys - ' + amount);
+
+        engine.push(id, data, function (err) {
+          if (err) return next(err) + engine.close();
+
+          engine.pull(id, function (err, data) {
+            if (err) return next(err) + engine.close();
+
+            data.should.have.length(100);
+            last = data.pop();
+
+            engine.pull(id, function (err, data) {
+              if (err) return next(err) + engine.close();
+
+              data.should.have.length(50);
+              last.should.not.equal(data.shift());
+
+              engine.close();
+              next();
+            });
+          });
+        });
+      });
+    });
   });
-  describe('#pull', function () {});
 });
