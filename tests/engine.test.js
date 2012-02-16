@@ -118,6 +118,18 @@ describe('engine.js', function () {
       async(new Error('oi'));
       async(new Error('oi'));
     });
+
+    it('sends multiple responses', function (next) {
+      var engine = new Engine()
+        , async = engine.async(2, function (errors, results) {
+            results.length.should.equal(2);
+
+            next();
+          });
+
+      async(null, 'oi');
+      async(null, 'oi');
+    });
   });
 
   describe('#pub/sub', function () {
@@ -410,4 +422,35 @@ describe('engine.js', function () {
       });
     });
   });
+
+  describe('#push', function () {
+    it('should be able to push data in to a backlog', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.push(id, 'message', function (err) {
+          engine.close();
+          next(err);
+        });
+      });
+    });
+
+    it('should be able to push an array of data in to the backlog', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.push(id, ['message1', 'message2'], function (err) {
+          engine.close();
+          next(err);
+        });
+      });
+    });
+  });
+  describe('#pull', function () {});
 });
