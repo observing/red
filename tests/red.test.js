@@ -109,8 +109,6 @@ describe('RED.js', function () {
           if (err) return next(err);
 
           request.get('https://localhost:' + port, function (err, res, body) {
-            console.error(err);
-
             res.statusCode.should.equal(404);
             res.headers['x-robots-tag'].indexOf('noindex').should.be.above(-1);
             res.headers['x-powered-by'].indexOf('RED').should.be.above(-1);

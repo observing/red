@@ -528,12 +528,32 @@ describe('engine.js', function () {
               if (err) return next(err) + engine.close();
 
               data.should.have.length(50);
-              last.should.not.equal(data.shift());
+
+              var first = data.shift();
+              last.should.not.equal(first);
 
               engine.close();
               next();
             });
           });
+        });
+      });
+    });
+
+    it('should also work when there are no keys stored to pull from', function (next) {
+      var engine = new Engine()
+        , id = Date.now();
+
+      engine.connect();
+
+      engine.on('connect', function () {
+        engine.pull(id, function (err, data) {
+          if (err) return next(err) + engine.close();
+
+          data.should.have.length(0);
+
+          engine.close();
+          next();
         });
       });
     });
