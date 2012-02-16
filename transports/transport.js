@@ -39,7 +39,11 @@ Transport.prototype.__proto__ = EventEmitter.prototype;
 
 Transport.prototype.send = function send (message) {
   this.count++;
-  this.engine.publish(message);
+
+  var self = this;
+  this.engine.push(this.connectionid, message, function backlog (err, messages) {
+    self.engine.publish(self.connectionid, message);
+  });
 };
 
 /**
@@ -74,7 +78,7 @@ Transport.prototype.initialize = function initialize (req) {
 Transport.prototype.backlog = function backlog () {
   var self = this;
 
-  this.engine.backlog(this.sessionid, function history (err, messages) {
+  this.engine.pull(this.sessionid, function history (err, messages) {
     if (err) return;
     if (!messages || !messages.length) return;
 
