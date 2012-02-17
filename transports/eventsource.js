@@ -29,9 +29,6 @@ EventSource.prototype.__proto__ = Transport.prototype;
 EventSource.prototype.initialize = function initialize (request, response) {
   if (this.receive.apply(this, arguments)) return;
 
-  // is it a HTML5 specification based EventSource or a older one
-  this.specification = ~request.url.indexOf('spec=5') ? 5 : 0;
-
   var headers = {
         'Content-Type': 'text/event-stream; charset=UTF-8'
       , 'Connection': 'keep-alive'

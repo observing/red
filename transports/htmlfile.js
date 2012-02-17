@@ -65,9 +65,10 @@ HTMLFile.prototype.initialize = function initialize (request, response) {
 
   var headers = {
         'Content-Type': 'text/html; charset=UTF-8'
-      , 'Connection': 'keep-alive'
+      , 'Connection': 'Keep-Alive'
       , 'Cache-Control': 'no-cache, no-store'
       , 'Transfer-Encoding': 'chunked'
+      , 'X-XSS-Protection': '0'
     };
 
   this.response.writeHead(200, headers);
