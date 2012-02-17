@@ -1,3 +1,9 @@
+/**!
+ * RED
+ * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.com>
+ * MIT Licensed
+ */
+
 var WebSocket = require('./websocket');
 
 function FlashSocket () {
@@ -9,5 +15,9 @@ function FlashSocket () {
 }
 
 FlashSocket.prototype.__proto__ = WebSocket.prototype;
+
+/**
+ * Expose the transport.
+ */
 
 module.exports = FlashSocket;

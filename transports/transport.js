@@ -1,3 +1,9 @@
+/**!
+ * RED
+ * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.com>
+ * MIT Licensed
+ */
+
 var EventEmitter = require('events').EventEmitter
   , EventReactor = require('eventreactor')
   , _ = require('underscore')._;

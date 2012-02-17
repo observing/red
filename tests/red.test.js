@@ -1,4 +1,9 @@
-/*jshint strict:false */
+/**!
+ * RED
+ * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.com>
+ * MIT Licensed
+ */
+
 describe('RED.js', function () {
   it('should export the current version number', function () {
     RED.version.should.be.a('string');

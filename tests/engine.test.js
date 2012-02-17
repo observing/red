@@ -1,3 +1,9 @@
+/**!
+ * RED
+ * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.com>
+ * MIT Licensed
+ */
+
 describe('engine.js', function () {
   it('should export as a function', function () {
     Engine.should.be.a('function');

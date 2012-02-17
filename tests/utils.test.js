@@ -1,3 +1,9 @@
+/**!
+ * RED
+ * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.com>
+ * MIT Licensed
+ */
+
 var utils = require('../lib/utils');
 
 describe('utils.js', function () {
