@@ -8,11 +8,14 @@ var Transport = require('./transport');
  * to the client so it can continiue parsing the page as it has received enough
  * information to `sniff` the template for a valid Content-Type declaration.
  *
+ * The current template is: 341B
+ *
  * @SEE http://code.google.com/p/browsersec/wiki/Part2#Survey_of_content_sniffing_behaviors
  *
  * @type {Buffer}
  * @api private
  */
+
 var template = new Buffer([
     '<!doctype html>'
   , '<html>'
@@ -22,11 +25,23 @@ var template = new Buffer([
   ,   '</head>'
   ,   '<body>'
   ,   '<script>'
-  ,   'document.domain = document.domain;'
-  ,   'function R (data) { parent.RED.receiver(data, document); }'
-  ,   'window.onload = function onload () { parent.RED.receiver.unload() };'
+  ,     'document.domain = document.domain;'
+  ,     'function R (data) { parent.RED.receiver(data, document); }'
+  ,     'window.onload = function onload () { parent.RED.receiver.unload() };'
   ,   '</script>'
 ].join(''));
+
+/**
+ * A HTMLFile based transport, this only works in IE6 because it should be
+ * loaded using the ActiveX htmlfile extension which allows us to stream data in
+ * an iframe without triggering a loading spinner.
+ *
+ * @constructor
+ * @param {Engine} engine
+ * @param {HTTP.ServerResponse} response
+ * @param {Object} options
+ * @api public
+ */
 
 function HTMLFile () {
   Transport.apply(this, arguments);
@@ -37,15 +52,23 @@ function HTMLFile () {
 
 HTMLFile.prototype.__proto__ = Transport.prototype;
 
-HTMLFile.prototype.initialize = function (request) {
-  if (this.receive(request)) return;
+/**
+ * Initialize the transport.
+ *
+ * @param {HTTP.ServerRequest} request
+ * @param {HTTP.ServerResponse} response
+ * @api public
+ */
+
+HTMLFile.prototype.initialize = function initialize (request, response) {
+  if (this.receive.apply(this, arguments)) return;
 
   var headers = {
         'Content-Type': 'text/html; charset=UTF-8'
       , 'Connection': 'keep-alive'
       , 'Cache-Control': 'no-cache, no-store'
       , 'Transfer-Encoding': 'chunked'
-  };
+    };
 
   this.response.writeHead(200, headers);
   this.response.write(template);
@@ -53,12 +76,20 @@ HTMLFile.prototype.initialize = function (request) {
   Transport.prototype.initialize.apply(this, arguments);
 };
 
-HTMLFile.prototype.write = function write (buffer) {
-  // make sure it's string as we need to wrap it
-  buffer = buffer.toString('UTF-8');
+/**
+ * Write to the actual established connection.
+ *
+ * @param {String} message
+ * @returns {Boolean} successfull write
+ * @api private
+ */
 
-  buffer = '<script>R(' + JSON.stringify(buffer) + ')</script>';
-  return this.response.write(buffer);
+HTMLFile.prototype.write = function write (message) {
+  return this.response.write('<script>R(' + JSON.stringify(message) + ')</script>');
 };
+
+/**
+ * Expose the transport.
+ */
 
 module.exports = HTMLFile;

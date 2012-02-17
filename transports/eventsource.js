@@ -1,5 +1,13 @@
 var Transport = require('./transport');
 
+/**
+ * @constructor
+ * @param {Engine} engine
+ * @param {HTTP.ServerResponse} response
+ * @param {Object} options
+ * @api public
+ */
+
 function EventSource () {
   Transport.apply(this, arguments);
 
@@ -10,8 +18,16 @@ function EventSource () {
 
 EventSource.prototype.__proto__ = Transport.prototype;
 
-EventSource.prototype.initialize = function initialize (request) {
-  if (this.receive(request)) return;
+/**
+ * Initialize the transport.
+ *
+ * @param {HTTP.ServerRequest} request
+ * @param {HTTP.ServerResponse} response
+ * @api public
+ */
+
+EventSource.prototype.initialize = function initialize (request, response) {
+  if (this.receive.apply(this, arguments)) return;
 
   // is it a HTML5 specification based EventSource or a older one
   this.specification = ~request.url.indexOf('spec=5') ? 5 : 0;
@@ -29,10 +45,33 @@ EventSource.prototype.initialize = function initialize (request) {
     headers['Content-Type'] = 'application/x-dom-event-stream; charset=UTF-8';
   }
 
+  // check if need to validate the HTTP access control
+  if (request.headers.origin) Transport.accessControl(request, headers);
+
   this.response.writeHead(200, headers);
   this.response.write('\r\n');
 
   Transport.prototype.initialize.apply(this, arguments);
 };
+
+/**
+ * Write to the actual established connection.
+ *
+ * @param {String} message
+ * @returns {Boolean} successfull write
+ * @api private
+*/
+
+EventSource.prototype.write = function write (message) {
+  var response = this.specification === 5
+    ? 'data:' + message + '\n\n'
+    : 'Event: RED\ndata: ' + message + '\n\n';
+
+  return this.response.write(response);
+};
+
+/**
+ * Expose the transport.
+ */
 
 module.exports = EventSource;

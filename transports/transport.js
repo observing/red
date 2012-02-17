@@ -2,6 +2,16 @@ var EventEmitter = require('events').EventEmitter
   , EventReactor = require('eventreactor')
   , _ = require('underscore')._;
 
+/**
+ * Transportation base class.
+ *
+ * @constructor
+ * @param {Engine} engine
+ * @param {HTTP.ServerResponse} response
+ * @param {Object}
+ * @api public
+ */
+
 function Transport (engine, response, options) {
   // defaults
   this.sessionid = 0;
@@ -53,25 +63,26 @@ Transport.prototype.send = function send (message) {
 };
 
 /**
- * Write to the transport.
+ * Write to the actual established connection.
  *
- * @param {Buffer} buffer
+ * @param {String} message
  * @returns {Boolean} successfull write
  * @api private
  */
 
-Transport.prototype.write = function write (buffer) {
-  return this.response.write(buffer);
+Transport.prototype.write = function write (message) {
+  return this.response.write(message);
 };
 
 /**
  * Initialize the transport.
  *
- * @param {HTTP.ServerRequest} req
+ * @param {HTTP.ServerRequest} request
+ * @param {HTTP.ServerResponse} response
  * @api public
  */
 
-Transport.prototype.initialize = function initialize (req) {
+Transport.prototype.initialize = function initialize (request, response) {
   this.backlog();
 };
 
@@ -84,12 +95,14 @@ Transport.prototype.initialize = function initialize (req) {
  */
 
 Transport.prototype.receive = function receive (requests, response) {
-  if (req.method !== 'POST') return false;
+  if (request.method !== 'POST') return false;
+
+  // make sure we have a response, as we need to answer the pull request, so
+  // this is either a new transport with
+  response = response || this.response;
 
   var body = ''
     , self = this;
-
-  response = response || this.response;
 
   /**
    * process the post requests, but make sure we limit the maxium amount of data
@@ -121,7 +134,12 @@ Transport.prototype.receive = function receive (requests, response) {
     body = ''; // dereference
 
     if (response) {
-      // @TODO answer the request
+      response.writeHead(200, {
+          'Content-Type': 'application/json; charset=UTF-8'
+        , 'Connection': 'keep-alive'
+        , 'Cache-Control': 'no-cache, no-store'
+      });
+      response.end('OK');
     }
   }
 
@@ -196,3 +214,26 @@ Transport.prototype.destroy = function destory () {
 
   this.engine.expire(this.id, this.inactivity);
 };
+
+/**
+ * Simple helper function for answering requests with HTTP access control.
+ *
+ * @SEE https://developer.mozilla.org/En/HTTP_Access_Control
+ *
+ * @param {HTTP.ServerRequest} requests
+ * @param {Object} headers
+ * @api private
+ */
+
+Transport.accessControl = function accessControl (requests, headers) {
+  var origin = req.headers.origin;
+
+  headers['Access-Control-Allow-Origin'] = origin;
+  headers['Access-Control-Allow-Credentials'] = 'true';
+};
+
+/**
+ * Expose the transport.
+ */
+
+module.exports = Transport;
