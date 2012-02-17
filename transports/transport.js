@@ -16,6 +16,9 @@ function Transport (engine, response, options) {
   this.heartbeatInterval = 20;
   this.inactivity = 20;
 
+  // restrictions
+  this.maxiumBuffer = 38400;
+
   _.extend(this, options || {});
 
   this.engine = engine;
@@ -25,6 +28,9 @@ function Transport (engine, response, options) {
   // don't buffer anything
   this.socket.setTimeout(0);
   this.socket.setNoDelay(true);
+
+  // add default finish event listener
+  this.response.on('finish', this.destroy);
 }
 
 Transport.prototype.__proto__ = EventEmitter.prototype;
@@ -50,11 +56,12 @@ Transport.prototype.send = function send (message) {
  * Write to the transport.
  *
  * @param {Buffer} buffer
+ * @returns {Boolean} successfull write
  * @api private
  */
 
 Transport.prototype.write = function write (buffer) {
-  this.response.write(buffer);
+  return this.response.write(buffer);
 };
 
 /**
@@ -65,8 +72,63 @@ Transport.prototype.write = function write (buffer) {
  */
 
 Transport.prototype.initialize = function initialize (req) {
-
   this.backlog();
+};
+
+/**
+ * Accepts POST requests
+ *
+ * @param {HTTP.ServerRequest} requests
+ * @param {HTTP.ServerResponse} response optional
+ * @api private
+ */
+
+Transport.prototype.receive = function receive (requests, response) {
+  if (req.method !== 'POST') return false;
+
+  var body = ''
+    , self = this;
+
+  response = response || this.response;
+
+  /**
+   * process the post requests, but make sure we limit the maxium amount of data
+   * they can upload to prevent DDOS attack with large uploads.
+   *
+   * @param {Buffer} chunk
+   * @api private
+   */
+
+  function posting (chunk) {
+    if (requests.socket.bytesRead >= self.maxiumBuffer) {
+      requests.removeListener('data', posting);
+      requests.removeListener('end', done);
+
+      return requests.connection.destroy();
+    }
+
+    body += chunk;
+  }
+
+  /**
+   * Handle completed posts.
+   *
+   * @api private
+   */
+
+  function done () {
+    self.emit('data', body);
+    body = ''; // dereference
+
+    if (response) {
+      // @TODO answer the request
+    }
+  }
+
+  response.on('data', posting);
+  response.on('end', done);
+
+  return true;
 };
 
 /**
@@ -109,8 +171,28 @@ Transport.prototype.end = function end () {
  */
 
 Transport.prototype.destroy = function destory () {
+  // check if we need to answer the response, if the request is answered there
+  // will be a finished flag set, @see node http:
+  // https://github.com/joyent/node/blob/master/lib/http.js#L764
+  if (!this.response.finished) {
+    // did we set the statusCode already?
+    if (!this.response.statusCode) {
+      this.response.statusCode = 200;
+    }
+
+    // do we need to add a content-type
+    if (!this.response.getHeader('content-type')) {
+      this.response.setHeader('Content-Type', 'application/json');
+    }
+
+    try { this.response.end(); }
+    catch (e) {}
+  }
+
+  // clean up eventlisteners
   this.removeAllListeners();
-  this.removeReference();
+  this.response.removeAllListeners();
+  this.socket.removeAllListeners();
 
   this.engine.expire(this.id, this.inactivity);
 };
