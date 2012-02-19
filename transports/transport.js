@@ -35,6 +35,9 @@ function Transport (engine, response, options) {
   // restrictions
   this.maxiumBuffer = 38400;
 
+  // protocol parser
+  this.protocol = null;
+
   _.extend(this, options || {});
 
   this.engine = engine;

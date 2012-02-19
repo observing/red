@@ -8,9 +8,16 @@
  * Expose globals that we would be using in most of the test suites.
  */
 
-RED = require('../');
-Engine = require('../lib/engine');
-request = require('request');
+global.RED = RED = require('../');
+global.Engine = Engine = require('../lib/engine');
+global.Protocols = Protocols = require('../lib/protocol');
+
+/**
+ * Global dependencies
+ */
+
+global.should = should = require('should');
+global.require = request = require('request');
 
 /**
  * Helper tools

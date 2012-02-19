@@ -66,13 +66,15 @@ describe('engine.js', function () {
           hostname: 'wtftrololol'
       });
 
-      engine.connect();
-
       engine.on('error', function () {});
       engine.once('connect failed', function (err) {
+        err.message.should.equal('Failed to establish a connection');
+
         engine.close();
         next();
       });
+
+      engine.connect();
     });
   });
 
