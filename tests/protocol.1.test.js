@@ -19,6 +19,11 @@ describe('Protocol.1', function () {
   });
 
   describe('#encode', function () {
+    it('is a function', function () {
+      var parser = new Protocol();
+      parser.encode.should.be.a('function');
+    });
+
     it('encodes a simple disconnect packet', function () {
       var parser = new Protocol()
         , message = parser.encode({
@@ -251,7 +256,37 @@ describe('Protocol.1', function () {
     });
 
     describe("(event)", function () {
+      it('encodes a event without arguments', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'event'
+              , name: 'foo'
+            });
 
+        message.should.equal('5#1#22#{"event":"foo"}');
+      });
+
+      it('encodes a event type with arguments', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'event'
+              , name: 'foo'
+              , args: [1, 2]
+            });
+
+        message.should.equal('5#1#35#{"event":"foo","args":[1,2]}');
+      });
+
+      it('encodes a event type with a unicode UTF-8 argument', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'event'
+              , name: 'foo'
+              , args: ['©®¶']
+            });
+
+        message.should.equal('5#1#37#{"event":"foo","args":["©®¶"]}');
+      });
     });
 
     describe("(message)", function () {
@@ -268,7 +303,21 @@ describe('Protocol.1', function () {
   });
 
   describe('#decode', function () {
+    it('is a function', function () {
+      var parser = new Protocol();
 
+      parser.decode.should.be.a('function');
+    });
+
+    it('decodes a simple message', function (next) {
+      var parser = new Protocol();
+
+      parser.on('message', function (type, data, id, message) {
+        next();
+      });
+
+      parser.decode('0#1#6#');
+    });
   });
 
   describe('#stream', function () {
