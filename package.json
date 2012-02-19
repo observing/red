@@ -13,6 +13,7 @@
         "mocha": "0.11.0"
       , "should": "*"
       , "request": "*"
+      , "jsonh": "*"
     }
   , "scripts": {
         "test": "make test"
