@@ -18,7 +18,7 @@
 <a name="support" />
 ## Supported Node versions
 
-RED is build upon Node.js 0.6.x so it can take advantage of all the latest
+RED is built upon Node.js 0.6.x so it can take advantage of all the latest
 functionality that Node has to offer. It will only support the latest stable
 version of Node.js.
 
