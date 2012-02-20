@@ -253,6 +253,33 @@ describe('Protocol.1', function () {
 
         message.should.equal('4#1#12#"©®¶"');
       });
+
+      it('can encode a codec type with different encoders', function () {
+        var parser = new Protocol(JSONH.stringify, JSONH.parse)
+          , message = parser.encode({
+                type: 'codec'
+              , message: [{a:'A'},{a:'B'}]
+            });
+
+        message.should.equal('4#1#22#[1,"a","A","B"]');
+      });
+
+      it('emits an `encode error` event when codec encoding fails', function (next) {
+        var parser = new Protocol()
+          , structure = { foo: 'bar' };
+
+        parser.on('encode error', function (err, data) {
+          data.should.equal(structure);
+
+          next();
+        });
+
+        structure.bar = structure;
+        parser.encode({
+            type: 'codec'
+          , message: structure
+        });
+      });
     });
 
     describe("(event)", function () {
@@ -290,15 +317,96 @@ describe('Protocol.1', function () {
     });
 
     describe("(message)", function () {
+      it('encodes a message type without a message', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'message'
+            });
 
+        message.should.equal('6#1#6#');
+      });
+
+      it('encodes a message type with a message', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'message'
+              , message: 'hi'
+            });
+
+        message.should.equal('6#1#8#hi');
+      });
+
+      it('encodes a message type with a unicode UTF-8 message', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'message'
+              , message: '©®¶'
+            });
+
+        message.should.equal('6#1#9#©®¶');
+      });
     });
 
     describe("(reset)", function () {
+      it('encodes a reset type without a message', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'reset'
+            });
 
+        message.should.equal('7#1#6#');
+      });
+
+      it('encodes a reset type with a message', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'reset'
+              , message: 'hi'
+            });
+
+        message.should.equal('7#1#8#hi');
+      });
+
+      it('encodes a reset type with a unicode UTF-8 message', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'reset'
+              , message: '©®¶'
+            });
+
+        message.should.equal('7#1#9#©®¶');
+      });
     });
 
     describe('(error)', function () {
+      it('encodes a error type without a message', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'error'
+            });
 
+        message.should.equal('8#1#6#');
+      });
+
+      it('encodes a error type with a message', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'error'
+              , message: 'hi'
+            });
+
+        message.should.equal('8#1#8#hi');
+      });
+
+      it('encodes a error type with a unicode UTF-8 message', function () {
+        var parser = new Protocol()
+          , message = parser.encode({
+                type: 'error'
+              , message: '©®¶'
+            });
+
+        message.should.equal('8#1#9#©®¶');
+      });
     });
   });
 
@@ -328,6 +436,344 @@ describe('Protocol.1', function () {
       });
 
       parser.decode('0#1#6#');
+    });
+
+    describe('(disconnect)', function () {
+      it('decodes a disconnect type without a message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('disconnect');
+          message.should.equal('');
+          id.should.equal(1);
+          raw.should.equal('');
+
+          next();
+        });
+
+        parser.decode('0#1#6#');
+      });
+
+      it('decodes a disconnect type with a message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('disconnect');
+          message.should.equal('hi');
+          id.should.equal(1);
+          raw.should.equal('hi');
+
+          next();
+        });
+
+        parser.decode('0#1#8#hi');
+      });
+
+      it('decodes a disconnect type with a UTF-8 message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('disconnect');
+          message.should.equal('©®¶');
+          id.should.equal(1);
+          raw.should.equal('©®¶');
+
+          next();
+        });
+
+        parser.decode('0#1#9#©®¶');
+      });
+    });
+
+    describe('(connect)', function () {
+      it('decodes a connect type without a message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('connect');
+          message.should.equal('');
+          id.should.equal(1);
+          raw.should.equal('');
+
+          next();
+        });
+
+        parser.decode('1#1#6#');
+      });
+
+      it('decodes a connect type with a message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('connect');
+          message.should.equal('hi');
+          id.should.equal(1);
+          raw.should.equal('hi');
+
+          next();
+        });
+
+        parser.decode('1#1#8#hi');
+      });
+
+      it('decodes a connect type with a UTF-8 message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('connect');
+          message.should.equal('©®¶');
+          id.should.equal(1);
+          raw.should.equal('©®¶');
+
+          next();
+        });
+
+        parser.decode('1#1#9#©®¶');
+      });
+    });
+
+    describe('(handshake)', function () {
+      it('decodes a handshake type without a message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('handshake');
+          message.should.equal('');
+          id.should.equal(1);
+          raw.should.equal('');
+
+          next();
+        });
+
+        parser.decode('2#1#6#');
+      });
+
+      it('decodes a handshake type with a message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('handshake');
+          message.should.equal('hi');
+          id.should.equal(1);
+          raw.should.equal('hi');
+
+          next();
+        });
+
+        parser.decode('2#1#8#hi');
+      });
+
+      it('decodes a handshake type with a UTF-8 message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('handshake');
+          message.should.equal('©®¶');
+          id.should.equal(1);
+          raw.should.equal('©®¶');
+
+          next();
+        });
+
+        parser.decode('2#1#9#©®¶');
+      });
+    });
+
+    describe('(hearbeat)', function () {
+      it('decodes a heartbeat type without a message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('heartbeat');
+          message.should.equal('');
+          id.should.equal(1);
+          raw.should.equal('');
+
+          next();
+        });
+
+        parser.decode('3#1#6#');
+      });
+
+      it('decodes a heartbeat type with a message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('heartbeat');
+          message.should.equal('hi');
+          id.should.equal(1);
+          raw.should.equal('hi');
+
+          next();
+        });
+
+        parser.decode('3#1#8#hi');
+      });
+
+      it('decodes a heartbeat type with a UTF-8 message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('heartbeat');
+          message.should.equal('©®¶');
+          id.should.equal(1);
+          raw.should.equal('©®¶');
+
+          next();
+        });
+
+        parser.decode('3#1#9#©®¶');
+      });
+    });
+
+    describe('(codec)', function () {
+      it('decodes a codec type without a message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('codec');
+          message.should.eql({});
+          id.should.equal(1);
+          raw.should.equal('');
+
+          next();
+        });
+
+        parser.decode('4#1#6#');
+      });
+
+      it('decodes a codec type with a (string) message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('codec');
+          message.should.equal('pew');
+          id.should.equal(1);
+          raw.should.equal('"pew"');
+
+          next();
+        });
+
+        parser.decode('4#1#12#"pew"');
+      });
+
+      it('decodes a codec type with a (number) message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('codec');
+          message.should.equal(1337);
+          id.should.equal(1);
+          raw.should.equal('1337');
+
+          next();
+        });
+
+        parser.decode('4#1#10#1337');
+      });
+
+      it('decode a codec type with a (object) message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('codec');
+          message.should.eql({ foo: "bar" });
+          id.should.equal(1);
+          raw.should.equal('{"foo":"bar"}');
+
+          next();
+        });
+
+        parser.decode('4#1#20#{"foo":"bar"}');
+      });
+
+      it('decodes a codec type with a (array) message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('codec');
+          message.should.eql([1,2,3,"foo","bar"]);
+          id.should.equal(1);
+          raw.should.equal('[1,2,3,"foo","bar"]');
+
+          next();
+        });
+
+        parser.decode('4#1#26#[1,2,3,"foo","bar"]');
+      });
+
+      it('codec a codec type with a (date) message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('codec');
+          message.should.equal('2013-01-20T23:00:00.000Z');
+          id.should.equal(1);
+          raw.should.equal('"2013-01-20T23:00:00.000Z"');
+
+          next();
+        });
+
+        parser.decode('4#1#33#"2013-01-20T23:00:00.000Z"');
+      });
+
+      it('decodes a codec type with a unicode UTF-8 message', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('codec');
+          message.should.equal('©®¶');
+          id.should.equal(1);
+          raw.should.equal('"©®¶"');
+
+          next();
+        });
+
+        parser.decode('4#1#12#"©®¶"');
+      });
+
+      it('can decode a codec type with different decoders', function (next) {
+        var parser = new Protocol(JSONH.stringify, JSONH.parse);
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('codec');
+          message.should.eql([{a:'A'},{a:'B'}]);
+          id.should.equal(1);
+          raw.should.equal('[1,"a","A","B"]');
+
+          next();
+        });
+
+        parser.decode('4#1#22#[1,"a","A","B"]');
+      });
+
+      it('emits an `decode error` event when codec decoding fails', function (next) {
+        var parser = new Protocol();
+
+        parser.on('decode error', function (err, data) {
+          data.should.equal('[1,,mooo,rolol"a","A","B"]');
+
+          next();
+        });
+
+        parser.decode('4#1#33#[1,,mooo,rolol"a","A","B"]');
+      });
+    });
+
+    describe('(event)', function () {
+
+    });
+
+    describe('(message)', function () {
+
+    });
+
+    describe('(reset)', function () {
+
+    });
+
+    describe('(error)', function () {
+
     });
   });
 
