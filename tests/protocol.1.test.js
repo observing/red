@@ -761,7 +761,50 @@ describe('Protocol.1', function () {
     });
 
     describe('(event)', function () {
+      it('decodes a event type without arguments', function (next) {
+        var parser = new Protocol();
 
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('event');
+          message.should.eql({ event: 'foo' });
+          id.should.equal(1);
+          raw.should.equal('{"event":"foo"}');
+
+          next();
+        });
+
+        parser.decode('5#1#22#{"event":"foo"}');
+      });
+
+      it('decodes a event type with arguments', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('event');
+          message.should.eql({"event":"foo","args":[1,2]});
+          id.should.equal(1);
+          raw.should.equal('{"event":"foo","args":[1,2]}');
+
+          next();
+        });
+
+        parser.decode('5#1#35#{"event":"foo","args":[1,2]}');
+      });
+
+      it('decodes a event type with a UTF-8 argument', function (next) {
+        var parser = new Protocol();
+
+        parser.on('message', function (type, message, id, raw) {
+          type.should.equal('event');
+          message.should.eql({"event":"foo","args":["©®¶"]});
+          id.should.equal(1);
+          raw.should.equal('{"event":"foo","args":["©®¶"]}');
+
+          next();
+        });
+
+        parser.decode('5#1#37#{"event":"foo","args":["©®¶"]}');
+      });
     });
 
     describe('(message)', function () {
