@@ -309,10 +309,21 @@ describe('Protocol.1', function () {
       parser.decode.should.be.a('function');
     });
 
-    it('decodes a simple message', function (next) {
+    it('decodes a simple message', function () {
       var parser = new Protocol();
 
-      parser.on('message', function (type, data, id, message) {
+      parser.decode('0#1#6#');
+    });
+
+    it('emits a `message` event when it parses a message', function (next) {
+      var parser = new Protocol();
+
+      parser.on('message', function (type, message, id, raw) {
+        type.should.equal('disconnect');
+        message.should.equal('');
+        id.should.equal(1);
+        raw.should.equal('');
+
         next();
       });
 
