@@ -5,7 +5,7 @@
                                dF                 |  RED is a real time system for
    .u    .                    '88bu.              |  Node.js 0.6.x.
  .d88B :@8c          .u       '*88888bu           |
-="8888f8888r      ud8888.       ^"*8888N          |  It is build with scalablity
+="8888f8888r      ud8888.       ^"*8888N          |  It is built with scalablity
   4888>'88"     :888'8888.     beWE "888L         |  and connectivity in mind.
   4888> '       d888 '88%"     888E  888E         |
   4888>         8888.+"        888E  888E         |  Current status:
@@ -25,7 +25,7 @@ version of Node.js.
 <a name="installation" />
 ## Installation
 
-As RED is build upon the Redis NoSQL database you will need to have this
+As RED is built upon the Redis NoSQL database you will need to have this
 installed on your system, either acquite it from their git repository:
 
 ```
