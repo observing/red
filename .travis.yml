@@ -1,7 +1,8 @@
 language: node_js
 node_js:
   - 0.6
-  - 0.7
+# some of our dependencies doesn't run on Node 0.7 yet
+# - 0.7
 
 notifications:
   irc: "irc.freenode.org#observe.it"

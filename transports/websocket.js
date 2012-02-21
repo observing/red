@@ -4,7 +4,8 @@
  * MIT Licensed
  */
 
-var Transport = require('./transport');
+var Transport = require('./transport')
+  , WS = require('ws');
 
 function WebSocket () {
   Transport.apply(this, arguments);
@@ -15,6 +16,8 @@ function WebSocket () {
 }
 
 WebSocket.prototype.__proto__ = Transport.prototype;
+
+WebSocket.prototype.initialize = function
 
 /**
  * Expose the transport.

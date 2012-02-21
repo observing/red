@@ -88,10 +88,11 @@ Transport.prototype.write = function write (message) {
  *
  * @param {HTTP.ServerRequest} request
  * @param {HTTP.ServerResponse} response
+ * @param {Buffer} head
  * @api public
  */
 
-Transport.prototype.initialize = function initialize (request, response) {
+Transport.prototype.initialize = function initialize (request, response, head) {
   this.backlog();
 };
 
@@ -221,7 +222,8 @@ Transport.prototype.destroy = function destory () {
   this.response.removeAllListeners();
   this.socket.removeAllListeners();
 
-  this.engine.expire(this.id, this.inactivity);
+  // expire the data instantly if don't need to support heartbeats
+  this.engine.expire(this.id, this.heartbeats ? this.inactivity : 0);
 };
 
 /**

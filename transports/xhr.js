@@ -7,9 +7,7 @@
 var Transport = require('./transport');
 
 /**
- * JSONP (JSON with padding) based transport, it's supported by almost every
- * single browser that can execute JavaScript, making this the one of best
- * transports.
+ * XHR long polling transport
  *
  * @constructor
  * @param {Engine} engine
@@ -18,14 +16,14 @@ var Transport = require('./transport');
  * @api public
  */
 
-function JSONP () {
+function XHR () {
   Transport.apply(this, arguments);
 
   // set the defaults for this transport
-  this.name = 'JSONP';
+  this.name = 'XHR';
 }
 
-JSONP.prototype.__proto__ = Transport.prototype;
+XHR.prototype.__proto__ = Transport.prototype;
 
 /**
  * Initialize the transport.
@@ -35,8 +33,22 @@ JSONP.prototype.__proto__ = Transport.prototype;
  * @api public
  */
 
-JSONP.prototype.initialize = function initialize (request, response) {
+XHR.prototype.initialize = function initialize (request, response) {
   if (this.receive.apply(this, arguments)) return;
+
+  var headers = {
+        'Content-Type': 'text/plain; charset=UTF-8'
+      , 'Connection': 'Keep-Alive'
+      , 'Cache-Control': 'no-cache, no-store'
+      , 'Transfer-Encoding': 'chunked'
+    };
+
+  // check if need to validate the HTTP access control
+  if (request.headers.origin) Transport.accessControl(request, headers);
+
+  this.response.writeHead(200, headers);
+
+  Transport.prototype.initialize.apply(this, arguments);
 };
 
 /**
@@ -47,17 +59,7 @@ JSONP.prototype.initialize = function initialize (request, response) {
  * @api private
  */
 
-JSONP.prototype.write = function write (message) {
-  var response = 'RED.JSONP[' + this.specification + '](' + message + ')';
-
-  this.response.writeHead(200, {
-      'Content-Type': 'text/javascript; charset=UTF-8'
-    , 'Connection': 'Keep-Alive'
-    , 'Cache-Control': 'no-cache, no-store'
-    , 'Content-Length': Buffer.byteLength(response)
-    , 'X-XSS-Protection': '0'
-  });
-
+XHR.prototype.write = function write (message) {
   return this.response.end(response);
 };
 
@@ -65,4 +67,4 @@ JSONP.prototype.write = function write (message) {
  * Expose the transport.
  */
 
-module.exports = JSONP;
+module.exports = XHR;
