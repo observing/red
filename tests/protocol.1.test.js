@@ -238,10 +238,10 @@ describe('Protocol.1', function () {
         var parser = new Protocol()
           , message = parser.encode({
                 type: 'codec'
-              , message: new Date(2012, 12, 21, 0, 0, 0)
+              , message: new Date(1329814695579)
             });
 
-        message.should.equal('4#1#33#"2013-01-20T23:00:00.000Z"');
+        message.should.equal('4#1#33#"2012-02-21T08:58:15.579Z"');
       });
 
       it('encodes a codec type with a unicode UTF-8 message', function () {
