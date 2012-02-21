@@ -17,7 +17,18 @@ function WebSocket () {
 
 WebSocket.prototype.__proto__ = Transport.prototype;
 
-WebSocket.prototype.initialize = function
+/**
+ * Initialize the transport.
+ *
+ * @param {HTTP.ServerRequest} request
+ * @param {HTTP.ServerResponse} response
+ * @param {Buffer} head
+ * @api public
+ */
+
+WebSocket.prototype.initialize = function initialize (request, response, head) {
+
+};
 
 /**
  * Expose the transport.

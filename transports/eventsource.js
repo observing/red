@@ -37,7 +37,7 @@ EventSource.prototype.initialize = function initialize (request, response) {
 
   var headers = {
         'Content-Type': 'text/event-stream; charset=UTF-8'
-      , 'Connection': 'keep-alive'
+      , 'Connection': 'Keep-Alive'
       , 'Cache-Control': 'no-cache, no-store'
       , 'Transfer-Encoding': 'chunked'
     };
