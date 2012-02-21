@@ -56,8 +56,19 @@ cd RED
 npm install .
 ```
 
-<a name="development" />
+<a name="design-goals" />
+## Design goals
 
+- All transports support cross domain connections.
+- Cross browser support starting at IE6.
+- Transports are upgraded instead of downgraded for faster connection times.
+- Support for multiple connection.
+- Scaling out is done by adding new node to the cluster.
+- Connections can be established with every node.
+- Firewall and virus scanner fallbacks.
+- Something that just works, without any issues.
+
+<a name="development" />
 ## Development
 
 RED is currently heavily under development, once it's in working order a 0.0.x
