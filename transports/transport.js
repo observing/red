@@ -47,6 +47,7 @@ function Transport (engine, response, options) {
   // don't buffer anything
   this.socket.setTimeout(0);
   this.socket.setNoDelay(true);
+  this.socket.setEncoding('utf8');
 
   // add default finish event listener
   this.response.on('finish', this.destroy);
@@ -224,6 +225,35 @@ Transport.prototype.destroy = function destory () {
 
   // expire the data instantly if don't need to support heartbeats
   this.engine.expire(this.id, this.heartbeats ? this.inactivity : 0);
+};
+
+/**
+ * Invalid response, close this response.
+ *
+ * @TODO make sure that .destory is also called so everything gets cleaned up
+ * nicely.
+ *
+ * @param {String} error error message
+ * @param {Error} err optional err that caused this issue
+ * @api private
+ */
+
+Transport.errors = {
+    'error': 500
+  , 'bad request': 400
+};
+
+Transport.prototype.error = function (error, err) {
+  var data = Transport.errors[error.toLowerCase()];
+
+  try {
+    this.response.end([
+        'HTTP/1.1 ' + response + ' ' + error
+      , 'Content-Type: text/html'
+      , ''
+      , ''
+    ].join('\r\n'));
+  } catch (e) {}
 };
 
 /**
