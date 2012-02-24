@@ -112,27 +112,8 @@ Transport.prototype.receive = function receive (request, response) {
   // this is either a new transport with
   response = response || this.response;
 
-  var body = ''
+  var parser = this.protocol.createStream(this.maxiumBuffer)
     , self = this;
-
-  /**
-   * process the post requests, but make sure we limit the maxium amount of data
-   * they can upload to prevent DDOS attack with large uploads.
-   *
-   * @param {Buffer} chunk
-   * @api private
-   */
-
-  function posting (chunk) {
-    if (request.socket.bytesRead >= self.maxiumBuffer) {
-      request.removeListener('data', posting);
-      request.removeListener('end', done);
-
-      return request.connection.destroy();
-    }
-
-    body += chunk;
-  }
 
   /**
    * Handle completed posts.
@@ -141,21 +122,18 @@ Transport.prototype.receive = function receive (request, response) {
    */
 
   function done () {
-    self.emit('data', body);
-    body = ''; // dereference
-
     if (response) {
       response.writeHead(200, {
           'Content-Type': 'application/json; charset=UTF-8'
-        , 'Connection': 'keep-alive'
+        , 'Connection': 'Keep-Alive'
         , 'Cache-Control': 'no-cache, no-store'
       });
-      response.end('OK');
+      response.end('"OK"');
     }
   }
 
-  response.on('data', posting);
-  response.on('end', done);
+  parser.on('end', done);
+  request.pipe(parser);
 
   return true;
 };
