@@ -27,7 +27,7 @@ WebSocket.prototype.__proto__ = Transport.prototype;
  * @api public
  */
 
-WebSocket.prototype.initialize = function initialize (request, response, head) {
+WebSocket.prototype.initialize = function initialize (request) {
   // make sure we toLowerCase the header's content as IE 10 sends it in
   // lowercase instead of WebSocket
   if (!request.headers.upgrade
@@ -97,7 +97,7 @@ WebSocket.prototype.hybi = function hybi (request, response, head) {
   }
 
   // reset the response property so we can use that as a client
-  this.response = new WebSocket([request, response, head], {
+  this.response = new WS([request, response, head], {
       protocolVersion: version
     , protocol: protocol
   });
@@ -136,7 +136,8 @@ WebSocket.prototype.hixie = function hixie (request, response, head) {
           ]
       // HA proxy compatilbity, we might not have the nonce yet.
     , waiting = !(head && head.length >= WebSocket.hixiHeadLength)
-    , self = this;
+    , self = this
+    , nonce;
 
   // extra padding
   headers.push('', '');
@@ -161,9 +162,9 @@ WebSocket.prototype.hixie = function hixie (request, response, head) {
     }
 
     // generate a client
-    self.response = new WebSocket([request, response, head], {
+    self.response = new WS([request, response, head], {
         protocolVersion: ''
-      , protocol: req.headers['sec-websocket-protocol']
+      , protocol: request.headers['sec-websocket-protocol']
     });
   }
 

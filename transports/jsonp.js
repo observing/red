@@ -32,6 +32,7 @@ JSONP.prototype.__proto__ = Transport.prototype;
  *
  * @param {HTTP.ServerRequest} request
  * @param {HTTP.ServerResponse} response
+ * @param {Buffer} head
  * @api public
  */
 

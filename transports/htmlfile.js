@@ -63,10 +63,11 @@ HTMLFile.prototype.__proto__ = Transport.prototype;
  *
  * @param {HTTP.ServerRequest} request
  * @param {HTTP.ServerResponse} response
+ * @param {Buffer} head
  * @api public
  */
 
-HTMLFile.prototype.initialize = function initialize (request, response) {
+HTMLFile.prototype.initialize = function initialize () {
   if (this.receive.apply(this, arguments)) return;
 
   var headers = {
@@ -92,6 +93,8 @@ HTMLFile.prototype.initialize = function initialize (request, response) {
  */
 
 HTMLFile.prototype.write = function write (message) {
+  // stringify the message to kill any potential linebreaks and double / single
+  // quotes that could kill our message
   return this.response.write('<script>R(' + JSON.stringify(message) + ')</script>');
 };
 

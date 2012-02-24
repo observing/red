@@ -41,7 +41,7 @@ function Transport (engine, response, options) {
   _.extend(this, options || {});
 
   this.engine = engine;
-  this.response = res;
+  this.response = response;
   this.socket = this.response.socket;
 
   // don't buffer anything
@@ -100,12 +100,12 @@ Transport.prototype.initialize = function initialize (request, response, head) {
 /**
  * Accepts POST requests
  *
- * @param {HTTP.ServerRequest} requests
+ * @param {HTTP.ServerRequest} request
  * @param {HTTP.ServerResponse} response optional
  * @api private
  */
 
-Transport.prototype.receive = function receive (requests, response) {
+Transport.prototype.receive = function receive (request, response) {
   if (request.method !== 'POST') return false;
 
   // make sure we have a response, as we need to answer the pull request, so
@@ -124,11 +124,11 @@ Transport.prototype.receive = function receive (requests, response) {
    */
 
   function posting (chunk) {
-    if (requests.socket.bytesRead >= self.maxiumBuffer) {
-      requests.removeListener('data', posting);
-      requests.removeListener('end', done);
+    if (request.socket.bytesRead >= self.maxiumBuffer) {
+      request.removeListener('data', posting);
+      request.removeListener('end', done);
 
-      return requests.connection.destroy();
+      return request.connection.destroy();
     }
 
     body += chunk;
@@ -248,7 +248,7 @@ Transport.prototype.error = function (error, err) {
 
   try {
     this.response.end([
-        'HTTP/1.1 ' + response + ' ' + error
+        'HTTP/1.1 ' + data + ' ' + error
       , 'Content-Type: text/html'
       , ''
       , ''
@@ -266,10 +266,8 @@ Transport.prototype.error = function (error, err) {
  * @api private
  */
 
-Transport.accessControl = function accessControl (requests, headers) {
-  var origin = req.headers.origin;
-
-  headers['Access-Control-Allow-Origin'] = origin;
+Transport.accessControl = function accessControl (request, headers) {
+  headers['Access-Control-Allow-Origin'] = request.headers.origin;
   headers['Access-Control-Allow-Credentials'] = 'true';
 };
 

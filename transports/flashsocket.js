@@ -11,7 +11,6 @@ function FlashSocket () {
 
   // set the defaults for this transport
   this.name = 'FlashSocket';
-  this.specification = 'hixi';
 }
 
 FlashSocket.prototype.__proto__ = WebSocket.prototype;

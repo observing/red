@@ -29,10 +29,11 @@ EventSource.prototype.__proto__ = Transport.prototype;
  *
  * @param {HTTP.ServerRequest} request
  * @param {HTTP.ServerResponse} response
+ * @param {Buffer} head
  * @api public
  */
 
-EventSource.prototype.initialize = function initialize (request, response) {
+EventSource.prototype.initialize = function initialize (request) {
   if (this.receive.apply(this, arguments)) return;
 
   var headers = {
