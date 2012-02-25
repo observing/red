@@ -70,6 +70,7 @@ npm install .
 
 <a name="development" />
 ## Development
+[![Build Status](https://secure.travis-ci.org/observing/red.png?branch=master)](http://travis-ci.org/observing/red)
 
 RED is currently heavily under development, once it's in working order a 0.0.x
 version will be released for testing purposes.
