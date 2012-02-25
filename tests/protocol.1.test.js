@@ -6,6 +6,11 @@ describe('Protocol.1', function () {
     Protocol.should.be.a('function');
   });
 
+  it('exposes the version number', function () {
+    Protocol.version.should.be.a('number');
+    Protocol.version.should.equal(1);
+  });
+
   it('should initialize without any issues', function () {
     var parser = new Protocol();
   });
@@ -949,7 +954,78 @@ describe('Protocol.1', function () {
     });
   });
 
-  describe('#stream', function () {
+  describe('#createStream', function () {
+    var fs = require('fs');
 
+    it('should return a ProtocolStream', function () {
+      var parser = new Protocol()
+        , stream = parser.createStream();
+
+      if (!(stream instanceof Protocol.ProtocolStream)) {
+        should.fail('Not an instance of ProtocolStream');
+      }
+    });
+
+    it('it can be used with a pipe interface', function (next) {
+      var parser = new Protocol()
+        , stream = parser.createStream(100000)
+        , readStream = fs.createReadStream(__dirname + '/fixtures/protocol.small.txt');
+
+      stream.writable.should.equal(true);
+      stream.write.should.be.a('function');
+
+      readStream.on('open', function () {
+        readStream.pipe(stream);
+        next();
+      });
+    });
+
+    it('it parses the received data from the stream', function (next) {
+      var parser = new Protocol()
+        , stream = parser.createStream(100000)
+        , readStream = fs.createReadStream(__dirname + '/fixtures/protocol.small.txt')
+        , i = 0;
+
+      parser.on('message', function () {
+        i++;
+      });
+
+      readStream.on('open', function () {
+        readStream.pipe(stream);
+      });
+
+      stream.on('close', function () {
+        // should have parsed all messages
+        i.should.equal(2);
+
+        // make sure it cleared the buffer
+        stream.queue.should.equal('');
+        next();
+      });
+    });
+
+    it('`end` event is emitted before the `close` event', function (next) {
+      var parser = new Protocol()
+        , stream = parser.createStream(100000)
+        , end = false
+        , close = false
+        , readStream = fs.createReadStream(__dirname + '/fixtures/protocol.small.txt');
+
+      readStream.on('open', function () {
+        readStream.pipe(stream);
+      });
+
+      stream.on('end', function () {
+        close.should.equal(false);
+        end = true;
+      });
+
+      stream.on('close', function () {
+        end.should.equal(true);
+        close = true;
+
+        next();
+      });
+    });
   });
 });
