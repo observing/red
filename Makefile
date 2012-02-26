@@ -3,6 +3,18 @@ REPORTER = spec
 UI = bdd
 ENV = test
 
+install:
+	@npm install .
+	@git clone https://github.com/visionmedia/node-jscoverage.git jscoverage
+	@cd jscoverage && ./configure && make && make install
+	@rm -rf ./jscoverage
+
+lib-cov:
+	@jscoverage lib lib-cov
+
+test-cov: lib-cov
+	@RED_COVERAGE=1 $(MAKE) test REPORTER=html-cov > coverage.html
+
 test:
 	@NODE_ENV=$(ENV) ./node_modules/.bin/mocha \
 		--require should \
@@ -14,6 +26,6 @@ test:
 		$(ALL_TESTS)
 
 todo:
-	grep "@TODO" -R ./
+	grep "@TODO" -R ./lib
 
-.PHONY: test todo
+.PHONY: test todo install
