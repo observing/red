@@ -10,6 +10,7 @@ install:
 	@rm -rf ./jscoverage
 
 lib-cov:
+	@rm -rf ./lib-cov
 	@jscoverage lib lib-cov
 
 test-cov: lib-cov
@@ -28,4 +29,4 @@ test:
 todo:
 	grep "@TODO" -R ./lib
 
-.PHONY: test todo install
+.PHONY: test todo install lib-cov

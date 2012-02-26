@@ -23,6 +23,28 @@ describe('Protocol.1', function () {
     }
   });
 
+  describe('#encodec', function () {
+    it('encodes JavaScript objects as strings', function () {
+      var parser = new Protocol();
+
+      parser.encodec({}).should.equal('{}');
+    });
+
+    it('emits an `encode error` on if it fails to encode', function (next) {
+      var parser = new Protocol()
+        , data = { foo: 'bar' };
+
+      parser.on('encode error', function (e) {
+        if (!e) should.fail('Should have error');
+
+        next();
+      });
+
+      data.recursive = data;
+      parser.encodec(data);
+    });
+  });
+
   describe('#encode', function () {
     it('is a function', function () {
       var parser = new Protocol();
