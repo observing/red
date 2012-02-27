@@ -77,23 +77,13 @@ version will be released for testing purposes.
 ### Testing
 
 To run the test suite, you need to have Redis running on localhost with the
-default port. You can simply run:
-
-```
-make test
-```
-
-In the root of the directory to run the test suite, but because the test suite
-is also integrated with travis-ci you can also run `npm test`.
+default port. You can simply run `make test` in the root of the directory to run
+the test suite, but because the test suite is also integrated with travis-ci you
+can also run `npm test`.
 
 To run generate a test coverage report you need to have jscoverage installed on
-your machine. If you don't have it installed you can run:
-
-```
-make install
-```
-
-To install all RED's dependencies, including jscoverage. Once everything is
+your machine. If you don't have it installed you can run `make install` to
+install all RED's dependencies, including jscoverage. Once everything is
 installed you can run:
 
 ```
@@ -101,7 +91,7 @@ make test-cov
 open coverage.html
 ```
 
-To generate the test coverage report.
+And the test coverage report is generated for you.
 
 <a name="license" />
 ### License (MIT)

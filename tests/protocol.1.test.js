@@ -1,3 +1,9 @@
+/**!
+ * RED
+ * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.it>
+ * MIT Licensed
+ */
+
 describe('Protocol.1', function () {
   var Protocol = Protocols['1']
     , JSONH = require('jsonh');
