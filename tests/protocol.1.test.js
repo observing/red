@@ -1,9 +1,20 @@
+/**!
+ * RED
+ * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.it>
+ * MIT Licensed
+ */
+
 describe('Protocol.1', function () {
   var Protocol = Protocols['1']
     , JSONH = require('jsonh');
 
   it('should be exported as a function', function () {
     Protocol.should.be.a('function');
+  });
+
+  it('exposes the version number', function () {
+    Protocol.version.should.be.a('number');
+    Protocol.version.should.equal(1);
   });
 
   it('should initialize without any issues', function () {
@@ -16,6 +27,28 @@ describe('Protocol.1', function () {
     if (!(parser instanceof process.EventEmitter)) {
       should.fail('should be an EventEmitter');
     }
+  });
+
+  describe('#encodec', function () {
+    it('encodes JavaScript objects as strings', function () {
+      var parser = new Protocol();
+
+      parser.encodec({}).should.equal('{}');
+    });
+
+    it('emits an `encode error` on if it fails to encode', function (next) {
+      var parser = new Protocol()
+        , data = { foo: 'bar' };
+
+      parser.on('encode error', function (e) {
+        if (!e) should.fail('Should have error');
+
+        next();
+      });
+
+      data.recursive = data;
+      parser.encodec(data);
+    });
   });
 
   describe('#encode', function () {
@@ -949,7 +982,78 @@ describe('Protocol.1', function () {
     });
   });
 
-  describe('#stream', function () {
+  describe('#createStream', function () {
+    var fs = require('fs');
 
+    it('should return a ProtocolStream', function () {
+      var parser = new Protocol()
+        , stream = parser.createStream();
+
+      if (!(stream instanceof Protocol.ProtocolStream)) {
+        should.fail('Not an instance of ProtocolStream');
+      }
+    });
+
+    it('it can be used with a pipe interface', function (next) {
+      var parser = new Protocol()
+        , stream = parser.createStream(100000)
+        , readStream = fs.createReadStream(__dirname + '/fixtures/protocol.small.txt');
+
+      stream.writable.should.equal(true);
+      stream.write.should.be.a('function');
+
+      readStream.on('open', function () {
+        readStream.pipe(stream);
+        next();
+      });
+    });
+
+    it('it parses the received data from the stream', function (next) {
+      var parser = new Protocol()
+        , stream = parser.createStream(100000)
+        , readStream = fs.createReadStream(__dirname + '/fixtures/protocol.small.txt')
+        , i = 0;
+
+      parser.on('message', function () {
+        i++;
+      });
+
+      readStream.on('open', function () {
+        readStream.pipe(stream);
+      });
+
+      stream.on('close', function () {
+        // should have parsed all messages
+        i.should.equal(2);
+
+        // make sure it cleared the buffer
+        stream.queue.should.equal('');
+        next();
+      });
+    });
+
+    it('`end` event is emitted before the `close` event', function (next) {
+      var parser = new Protocol()
+        , stream = parser.createStream(100000)
+        , end = false
+        , close = false
+        , readStream = fs.createReadStream(__dirname + '/fixtures/protocol.small.txt');
+
+      readStream.on('open', function () {
+        readStream.pipe(stream);
+      });
+
+      stream.on('end', function () {
+        close.should.equal(false);
+        end = true;
+      });
+
+      stream.on('close', function () {
+        end.should.equal(true);
+        close = true;
+
+        next();
+      });
+    });
   });
 });

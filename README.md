@@ -69,10 +69,29 @@ npm install .
 - Something that just works, without any issues.
 
 <a name="development" />
-## Development
+## Development [![Build Status](https://secure.travis-ci.org/observing/red.png?branch=master)](http://travis-ci.org/observing/red)
 
 RED is currently heavily under development, once it's in working order a 0.0.x
 version will be released for testing purposes.
+
+### Testing
+
+To run the test suite, you need to have Redis running on localhost with the
+default port. You can simply run `make test` in the root of the directory to run
+the test suite, but because the test suite is also integrated with travis-ci you
+can also run `npm test`.
+
+To run generate a test coverage report you need to have jscoverage installed on
+your machine. If you don't have it installed you can run `make install` to
+install all RED's dependencies, including jscoverage. Once everything is
+installed you can run:
+
+```
+make test-cov
+open coverage.html
+```
+
+And the test coverage report is generated for you.
 
 <a name="license" />
 ### License (MIT)
