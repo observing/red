@@ -26,7 +26,7 @@ version of Node.js.
 ## Installation
 
 As RED is built upon the Redis NoSQL database you will need to have this
-installed on your system, either acquite it from their git repository:
+installed on your system, either aquire it from their git repository:
 
 ```
 git clone https://github.com/antirez/redis.git
