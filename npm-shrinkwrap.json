@@ -1,0 +1,49 @@
+{
+  "name": "red",
+  "version": "0.0.0",
+  "dependencies": {
+    "redis": {
+      "version": "0.7.1"
+    },
+    "ws": {
+      "version": "0.4.7",
+      "dependencies": {
+        "commander": {
+          "version": "0.5.0"
+        },
+        "options": {
+          "version": "0.0.2"
+        }
+      }
+    },
+    "eventreactor": {
+      "version": "0.0.6"
+    },
+    "underscore": {
+      "version": "1.3.1"
+    },
+    "jsonh": {
+      "version": "0.0.3"
+    },
+    "request": {
+      "version": "2.9.152"
+    },
+    "should": {
+      "version": "0.5.1"
+    },
+    "mocha": {
+      "version": "0.11.0",
+      "dependencies": {
+        "commander": {
+          "version": "0.5.2"
+        },
+        "growl": {
+          "version": "1.4.1"
+        },
+        "debug": {
+          "version": "0.5.0"
+        }
+      }
+    }
+  }
+}
