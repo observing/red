@@ -9,6 +9,10 @@ install:
 	@cd jscoverage && ./configure && make && make install
 	@rm -rf ./jscoverage
 
+hook:
+	@echo "make test" >> ./.git/hooks/pre-commit
+	@chmod +x ./.git/hooks/pre-commit
+
 lib-cov:
 	@rm -rf ./lib-cov
 	@jscoverage lib lib-cov
