@@ -5,6 +5,9 @@ node_modules
 npm-debug.log
 nohup.out
 
+# ignore redis database
+*.rdb
+
 # coverage
 lib-cov
 coverage.html
