@@ -1,4 +1,13 @@
+# node modules
 node_modules
+
+# output
 npm-debug.log
+nohup.out
+
+# ignore redis database
+*.rdb
+
+# coverage
 lib-cov
 coverage.html
