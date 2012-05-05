@@ -1,3 +1,6 @@
+/*global describe:true, it:true, Protocols:true */
+"use strict";
+
 /**!
  * RED
  * @copyright (c) 2012 observe.it (observe.it) <opensource@observe.it>
