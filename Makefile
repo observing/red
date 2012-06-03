@@ -1,4 +1,5 @@
 ALL_TESTS = $(shell find tests/ -name '*.test.js')
+PLUGINS = wrap,debug,crush
 REPORTER = spec
 UI = bdd
 ENV = test
@@ -9,16 +10,12 @@ install:
 	@cd jscoverage && ./configure && make && make install
 	@rm -rf ./jscoverage
 
+todo:
+	grep "@TODO" -R ./lib
+
 hook:
 	@echo "make test" >> ./.git/hooks/pre-commit
 	@chmod +x ./.git/hooks/pre-commit
-
-lib-cov:
-	@rm -rf ./lib-cov
-	@jscoverage lib lib-cov
-
-test-cov: lib-cov
-	@RED_COVERAGE=1 $(MAKE) test REPORTER=html-cov > coverage.html
 
 test:
 	@NODE_ENV=$(ENV) ./node_modules/.bin/mocha \
@@ -30,7 +27,14 @@ test:
 		--growl \
 		$(ALL_TESTS)
 
-todo:
-	grep "@TODO" -R ./lib
+lib-cov:
+	@rm -rf ./lib-cov
+	@jscoverage lib lib-cov
+
+test-cov: lib-cov
+	@RED_COVERAGE=1 $(MAKE) test REPORTER=html-cov > coverage.html
+
+client:
+	@square --bundle . --plugin $(PLUGINS) $(SQUARE)
 
 .PHONY: test todo install lib-cov

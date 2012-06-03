@@ -1,0 +1,14 @@
+{
+    "configuration": {
+        "dist": {}
+      , "plugins": {
+            "wrap": {
+                "header": ""
+              , "footer": ""
+            }
+        }
+    }
+  , "bundle": {
+
+    }
+}

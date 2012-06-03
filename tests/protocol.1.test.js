@@ -9,6 +9,7 @@
 
 describe('Protocol.1', function () {
   var Protocol = Protocols['1']
+    , Protocolstream = Protocols.stream
     , JSONH = require('jsonh');
 
   it('should be exported as a function', function () {
@@ -992,7 +993,7 @@ describe('Protocol.1', function () {
       var parser = new Protocol()
         , stream = parser.createStream();
 
-      if (!(stream instanceof Protocol.ProtocolStream)) {
+      if (!(stream instanceof ProtocolStream)) {
         should.fail('Not an instance of ProtocolStream');
       }
     });

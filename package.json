@@ -4,16 +4,17 @@
   , "description": "RED is a scalable real time application framework with cross browser fallbacks"
   , "author": "arnout@observe.it"
   , "dependencies": {
-        "redis": "0.7.x"
-      , "ws": "0.4.x"
-      , "eventreactor": "0.0.x"
-      , "underscore": "1.3.x"
+        "redis": "0.7.2"
+      , "ws": "0.4.15"
+      , "eventreactor": "0.0.6"
+      , "underscore": "1.3.3"
     }
   , "devDependencies": {
-        "mocha": "*"
-      , "should": "*"
-      , "request": "*"
-      , "jsonh": "*"
+        "mocha": "1.0.3"
+      , "should": "0.6.3"
+      , "request": "2.9.202"
+      , "jsonh": "0.0.3"
+      , "square": "0.0.x"
     }
   , "scripts": {
         "test": "make test"
