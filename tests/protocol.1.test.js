@@ -9,7 +9,7 @@
 
 describe('Protocol.1', function () {
   var Protocol = Protocols['1']
-    , Protocolstream = Protocols.stream
+    , ProtocolStream = Protocols.stream
     , JSONH = require('jsonh');
 
   it('should be exported as a function', function () {
