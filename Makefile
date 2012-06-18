@@ -27,6 +27,9 @@ test:
 		--growl \
 		$(ALL_TESTS)
 
+nyan:
+	$(MAKE) test REPORTER=nyan
+
 lib-cov:
 	@rm -rf ./lib-cov
 	@jscoverage lib lib-cov
