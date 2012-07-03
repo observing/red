@@ -3,7 +3,7 @@
 ```
                                  ..               |
                                dF                 |  RED is a real time system for
-   .u    .                    '88bu.              |  Node.js 0.6.x.
+   .u    .                    '88bu.              |  Node.js 0.8.x.
  .d88B :@8c          .u       '*88888bu           |
 ="8888f8888r      ud8888.       ^"*8888N          |  It is built with scalablity
   4888>'88"     :888'8888.     beWE "888L         |  and connectivity in mind.
